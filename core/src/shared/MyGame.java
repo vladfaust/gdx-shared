@@ -2,8 +2,12 @@ package shared;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Screen;
+
+import shared.screens.MyScreen;
 
 /**
  * Created by Faust on 02.06.2015.
@@ -11,28 +15,28 @@ import com.badlogic.gdx.InputProcessor;
  */
 public abstract class MyGame extends Game implements InputProcessor
 {
+	private static MyGame instance;
+
 	/*
 		Variables
 	 */
 
-	protected static int gameWidth = 0, gameHeight = 0;  // Unknown on start
-	protected static InputMultiplexer inputMultiplexer = null;
+	protected int gameWidth = 0, gameHeight = 0;  // Unknown on start
+	private InputMultiplexer inputMultiplexer = null;
+	private static MyScreen currentScreen;
 
 	/*
 		Initialization
 	 */
 
-	protected abstract void setGameWidth();
-
-	@Override
-	public void create()
+	public void create (int width)
 	{
-		setGameWidth();
+		instance = this;
 
-		if (gameWidth == 0)
-			throw new RuntimeException("Game width is not set!");
+		// Dimensions
 
-		gameHeight = Gdx.graphics.getHeight() * gameWidth / Gdx.graphics.getWidth();
+		gameWidth = width;
+		gameHeight = Gdx.graphics.getHeight() * width / Gdx.graphics.getWidth();
 
 		// Setting input
 
@@ -42,64 +46,75 @@ public abstract class MyGame extends Game implements InputProcessor
 		inputMultiplexer.addProcessor(this);
 	}
 
+	@Override
+	public void setScreen (Screen screen)
+	{
+		super.setScreen(screen);
+		currentScreen = (MyScreen) screen;
+	}
+
 	/*
 		Inputs
 	 */
 
-	public static void addInputProcessor(InputProcessor inputProcessor)
+	public static void addInputProcessor (InputProcessor inputProcessor)
 	{
-		inputMultiplexer.addProcessor(inputProcessor);
+		instance.inputMultiplexer.addProcessor(inputProcessor);
 	}
 
-	public static void removeInputProcessor(InputProcessor inputProcessor)
+	public static void removeInputProcessor (InputProcessor inputProcessor)
 	{
-		inputMultiplexer.removeProcessor(inputProcessor);
+		instance.inputMultiplexer.removeProcessor(inputProcessor);
 	}
 
 	@Override
-	public boolean keyDown(int keycode)
+	public boolean keyDown (int keycode)
+	{
+		if (keycode == Input.Keys.BACK || keycode == Input.Keys.BACKSPACE) {
+			currentScreen.onBackButtonPressed();
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean keyUp (int keycode)
 	{
 		return false;
 	}
 
 	@Override
-	public boolean keyUp(int keycode)
+	public boolean keyTyped (char character)
 	{
 		return false;
 	}
 
 	@Override
-	public boolean keyTyped(char character)
+	public boolean touchDown (int screenX, int screenY, int pointer, int button)
 	{
 		return false;
 	}
 
 	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button)
+	public boolean touchUp (int screenX, int screenY, int pointer, int button)
 	{
 		return false;
 	}
 
 	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button)
+	public boolean touchDragged (int screenX, int screenY, int pointer)
 	{
 		return false;
 	}
 
 	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer)
+	public boolean mouseMoved (int screenX, int screenY)
 	{
 		return false;
 	}
 
 	@Override
-	public boolean mouseMoved(int screenX, int screenY)
-	{
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(int amount)
+	public boolean scrolled (int amount)
 	{
 		return false;
 	}
@@ -108,13 +123,18 @@ public abstract class MyGame extends Game implements InputProcessor
 		Getters
 	 */
 
-	public static int getWidth()
+	public static int getGameWidth ()
 	{
-		return gameWidth;
+		return instance.gameWidth;
 	}
 
-	public static int getHeight()
+	public static int getGameHeight ()
 	{
-		return gameHeight;
+		return instance.gameHeight;
+	}
+
+	public static MyGame getInstance ()
+	{
+		return instance;
 	}
 }

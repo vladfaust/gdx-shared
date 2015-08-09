@@ -17,13 +17,10 @@ public abstract class MyGUI
 {
 	/*
 		Singleton
+		Some GUI elements should be accessed everywhere
 	 */
 
 	private static MyGUI instance;
-	public static MyGUI instance()
-	{
-		return instance;
-	}
 
 	/*
 		Root elements
@@ -50,10 +47,10 @@ public abstract class MyGUI
 		// Setting up the stage
 
 		OrthographicCamera camera = new OrthographicCamera();
-		camera.setToOrtho(false, MyGame.getWidth(), MyGame.getHeight());
+		camera.setToOrtho(false, MyGame.getGameWidth(), MyGame.getGameHeight());
 
 		stage.getViewport().setCamera(camera);
-		stage.getViewport().setWorldSize(MyGame.getWidth(), MyGame.getHeight());
+		stage.getViewport().setWorldSize(MyGame.getGameWidth(), MyGame.getGameHeight());
 
 		stack.setFillParent(true);
 		stage.addActor(stack);
@@ -73,38 +70,43 @@ public abstract class MyGUI
 		Utilities
 	 */
 
-	public void render(boolean clearScreen, float delta)
+	public static void render(boolean clearScreen, float delta)
 	{
 		if (clearScreen) {
 			Gdx.gl.glClearColor(MyBackground.getR(), MyBackground.getG(), MyBackground.getB(), MyBackground.getA());
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		}
 
-		stage.act(delta);
-		stage.draw();
+		instance.stage.act(delta);
+		instance.stage.draw();
 	}
 
 	public static void setScreen(MyGUIScreen screen)
 	{
-		screen.setScreen();
+		if (screen == null)
+			getStack().clear();
+		else
+			screen.setScreen();
 	}
 
 	/*
 		Getters
 	 */
 
-	public Stage getStage()
+	// These are static getters
+
+	public static Stage getStage()
 	{
-		return stage;
+		return instance.stage;
 	}
 
-	public Skin getSkin()
+	public static Skin getSkin()
 	{
-		return skin;
+		return instance.skin;
 	}
 
-	public Stack getStack()
+	public static Stack getStack()
 	{
-		return stack;
+		return instance.stack;
 	}
 }

@@ -2,7 +2,7 @@ package shared.gui;
 
 /**
  * Created by Faust on 02.06.2015.
- *
+ * It's static due it's simple
  */
 public class MyBackground
 {
